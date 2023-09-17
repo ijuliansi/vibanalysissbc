@@ -96,7 +96,7 @@ def accelFromAmp(freq):
 
 # ======== Start of analysis ===========
 # Material and constants declaration (Sockolet class, Pipe Schedule, Nipple Schedule, is9SA0E)
-material = materialClass(3000, "XS", "SCH160", False)
+material = materialClass(3000, "SCH40S", "SCH80S", False)
 vibFreq = input("Vibration frequency in Hz: ")
 inspectAcc = accelFromAmp(vibFreq)
 stressLimit = 35
@@ -122,8 +122,8 @@ def shearStress(V, M, r, I):
     h = 7 # h is assumed to be 7 mm
     A = 1.414 * math.pi * h * r
     shear1 = V/A
-    shear2 = M * r/I
-    shear = 6*(shear1**2 + shear2**2)
+    # shear2 = M * r/I
+    shear = 6*(shear1 ** 2)
     return shear
 
 # Bending stress calculation
@@ -249,8 +249,7 @@ while isFound == False: # Repeat until the optimal inspection point is found
     stressUpper[2] = vonmises(stressUpper[2], shearStress(v_upper[2], m_upper[2], material.nipOD, areaInertia(material.nipOD, material.nipID)))
     stressLower[3] = vonmises(stressLower[3], shearStress(v_lower[3], m_lower[3], material.pipeOD, areaInertia(material.pipeOD, material.pipeID)))
     stressUpper[3] = vonmises(stressUpper[3], shearStress(v_upper[3], m_upper[3], material.pipeOD, areaInertia(material.pipeOD, material.pipeID)))
-    # print(stressLower)
-    # print(stressUpper)
+
     # Stress difference calculation for each upper and lower bound
     stressDiffLower = max(stressLower) - 35
     stressDiffUpper = max(stressUpper) - 35
@@ -272,11 +271,8 @@ while isFound == False: # Repeat until the optimal inspection point is found
         print("Optimal inspection point is beyond SBC length. SBC will most likely fail")
         break
 
-    # print(f"Xr: {x_r}, xLower = {x_lower}, xUpper = {x_upper}, diff={stressDiffLower*stressDiffUpper}")
     iternum = iternum + 1
-    # if iternum == 10:
-    #     break
-
+    
 if isFound:
     print(f"Optimal inspect location for vibration frequency {vibFreq} Hz: {inspect_loc} mm. Number of iterations: {iternum}")
     intForcePlot()
